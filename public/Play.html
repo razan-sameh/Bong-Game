@@ -349,15 +349,6 @@
           ballObject.accelarationY = -ballObject.accelarationY; // Reverse ball direction on wall collision
       }
       // Check for scoring
-      Score();
-      //end the game
-      if (score.Player1 == "5" || score.Player2 == "5") {
-            return;
-        }
-      // Repeat the moveBall function using requestAnimationFrame
-      requestAnimationFrame(moveBall);
-    }
-      function Score() {    
       if (ballObject.x <= 0) {
           // Increase score and update score element
         score.Player2 = score.Player2 +1 ;
@@ -423,8 +414,14 @@
           ballObject.accelarationX = -ballObject.accelarationX;
           ballObject.accelarationY = Math.random() > 0.5 ? -2 : 2;
       }
-
-      }
+      //end the game
+      if (score.Player1 == "5" || score.Player2 == "5") {
+            return;
+        }
+      // Repeat the moveBall function using requestAnimationFrame
+      requestAnimationFrame(moveBall);
+    }
+      
       </script>
       <script src="js/Script2.js"></script>
     </body>
