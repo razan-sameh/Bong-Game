@@ -1,0 +1,80 @@
+*{
+    background-color: black;
+}
+.main{
+    background-color: black;
+    height: calc(100vh - 50px);
+    position: relative;
+}
+.game{
+    border: 5px solid aqua;
+    height: calc(100% - 125px);
+    margin: 25px;
+    position: relative;
+}
+
+.game .boxYellow, .game .boxRed{
+    width: 50%;
+    height: 100%;
+}
+.game .boxYellow{
+    border-right: 3px solid aqua ;
+    box-shadow: 0px 0px 18px aqua;
+    
+}
+.game .p1{
+    border: 5px solid yellow;
+    box-shadow: 0px 0px 6px yellow;
+    color: yellow;
+    padding: 0px 5px;
+    margin: 0px;
+    font-size: xx-large;
+    font-weight: 500;
+    width: 50px;
+    position: absolute;
+    top: 60px;
+}
+.game .p2{
+    width: 55px;
+    border: 5px solid red;
+    box-shadow: 0px 0px 6px red;
+    color: red;
+    padding: 0px 5px;
+    margin: 0px;
+    font-size: xx-large;
+    font-weight: 500;
+    position: absolute;
+    top: 60px;
+}
+.game .txtP1{
+    color: yellow;
+    font-size: xx-large;
+    font-weight: 500;
+    text-shadow: 0px 0px 13px yellow;
+}
+.game .txtP2{
+    color: red;
+    font-size: xx-large;
+    font-weight: 500;
+    text-shadow: 0px 0px 13px red;
+}
+.boxRed , .boxYellow{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.play{
+    text-align: end;
+    margin: 30px;
+}
+.play a{
+    text-decoration: none;
+    color: yellow;
+    font-size: xx-large;
+    font-weight: 500;
+    text-shadow: 0px 0px 13px yellow;
+}
+img{
+    width: 50px;
+}

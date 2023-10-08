@@ -1,0 +1,109 @@
+*{
+    background-color: black;
+}
+.main{
+    background-color: black;
+    height: calc(100vh - 50px);
+    position: relative;
+}
+.p1 , .score .scoreP1{
+    color: yellow;
+    text-shadow: 0px 0px 13px yellow;
+}
+.p2 , .score .scoreP2{
+    color: red;
+    text-shadow: 0px 0px 13px red;
+}
+.score{
+    color: aqua;
+}
+.game{
+    border: 5px solid aqua;
+    height: calc(100% - 125px);
+    margin: 25px;
+    position: relative;
+}
+
+.game .boxYellow, .game .boxRed{
+    width: 50%;
+    height: 100%;
+}
+.game .boxYellow{
+    border-right: 3px solid aqua ;
+    box-shadow: 0px 0px 18px aqua;
+    
+}
+.game .boxRed {
+    display: flex;
+    justify-content: end;
+}
+.game .PYellow{
+    position: relative;
+    margin: 20px;
+    width: 20px;
+    background-color: yellow;
+    height: 100px;
+    border-radius: 20px;    
+    box-shadow: 0px 0px 18px yellow;
+}
+.game .PRed{
+    position: relative;
+    margin: 20px;
+    width: 20px;
+    background-color: red;
+    height: 100px;
+    border-radius: 20px;   
+    box-shadow: 0px 0px 18px red; 
+}
+.game .ball{
+    width: 30px;
+    position: absolute;
+    height: 30px;
+    right: 44%;
+    top: 33%;
+    background-color: white;
+    border-radius: 50%;
+    z-index: 1000;
+    box-shadow: 0px 0px 18px white;
+}
+.footer{
+    position: absolute;
+    width: 100%;
+    bottom: 0px;
+    padding: 25px;
+    font-size: xx-large;
+    font-weight: 500;
+}
+.footer .p1{
+    border: 5px solid yellow;
+    box-shadow: 0px 0px 6px yellow;
+    padding: 0px 5px;
+    margin: 0px;
+}
+.footer .p2{
+    border: 5px solid red;
+    box-shadow: 0px 0px 6px red;
+    padding: 0px 5px;
+    margin: 0px;
+}
+.winPlayer{
+    display: none;
+    color: aliceblue;
+    position: absolute;
+    z-index: 10000;
+    font-size: xxx-large;
+    font-weight: 500;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -130%);
+}
+.start{
+    color: yellow;
+    position: absolute;
+    z-index: 10000;
+    font-size: xx-large;
+    font-weight: 500;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -130%);
+}

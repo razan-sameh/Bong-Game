@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Bong Game</title>
+</head>
+<body>
+    <div class="main">
+        <p class="winPlayer">Player 1 win</p>
+        <p class="start">Press Enter To Start</p>
+        <div class="game d-flex">
+            <div class="boxYellow">
+                <div class="PYellow"></div>
+            </div>
+            <div class="ball"></div>
+            <div class="boxRed">
+                <div class="PRed"></div>
+            </div>
+        </div>
+        <div class="footer d-flex justify-content-between align-items-center">
+            <p class="p1">
+                P1
+            </p>
+            <div class="score">
+                <span class="scoreP1">0</span>
+                :
+                <span class="scoreP2">0</span>
+            </div>
+            <p class="p2">
+                P2
+            </p>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <!-- Include your Firebase config script (see step 2) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    //declarations objects
+      const ballObject = {
+        x : 458,
+        y: 189,
+        accelarationX : Math.random() > 0.5 ? -2 : 2 ,
+        accelarationY: Math.random() > 0.5 ? -2 : 2,
+        enter : true
+      };                          
+      const score = {
+        Player1 : 0,
+        Player2: 0,
+        Winner : ""
+      };
+      let playersPostion = {
+        Postion: 0
+      };
+
+      let players = {
+            playerId : localStorage.getItem("PlayerID"),
+            keyCode: 0,
+            state: "" // Add the playerId attribute
+          };
+      //declarations variables
+      const boxP1 = document.querySelector(".boxYellow");
+      const boxP2 = document.querySelector(".boxRed");
+      const p1 = document.querySelector(".PYellow");
+      const p2 = document.querySelector(".PRed");
+      let ballStyle = document.querySelector(".ball");
+      const start = document.querySelector(".start");
+      let scoreP1 = document.querySelector(".scoreP1");
+      let scoreP2 = document.querySelector(".scoreP2");
+      const winPlayer = document.querySelector(".winPlayer");
+      const gameContainer = document.querySelector(".game");
+      let paddle1Style=window.getComputedStyle(p1) 
+      let paddle2Style= window.getComputedStyle(p2) 
+      const axis = gameContainer.getBoundingClientRect();
+      const ContainerBottom = axis.bottom;
+      const ContainerTop = axis.top;
+      let movingTime = null;
+      let isMoving = true;
+      // Get the dimensions of the game container
+      const containerWidth = gameContainer.clientWidth;
+      const containerHeight = gameContainer.clientHeight;
+      let paddle1Position = 0;
+      let paddle2Position = 0;
+      let speedIncreaseFactor = 1;
+      let paddleSpeed = 2;
+      let Ymoveup, YmoveDown, RmoveDown, RmoveUp;
+      let gameState = false;
+      //declarations firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAS-Vsr_7RNcyMGNX1OV3rsWpBu5YvJ-uw",
+            authDomain: "ponggame-b08ee.firebaseapp.com",
+            projectId: "ponggame-b08ee",
+            storageBucket: "ponggame-b08ee.appspot.com",
+            messagingSenderId: "1054950339541",
+            appId: "1:1054950339541:web:f7173019303b3eef62435c",
+            measurementId: "G-88H5L2QS4R"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+          $(document).keypress(function(e) {
+            if (e.keyCode == 13) {
+              if (gameState == false) {
+                  gameState = true;
+                  // Save the ball event to Firebase
+                  var firebaseRefball = firebase.database().ref(`ball`);
+                  firebaseRefball.set(ballObject)
+                    .then(() => {
+                      console.log('Object created successfully.');
+                    })
+                    .catch((error) => {
+                      console.error('Error creating object:', error);
+                    });   
+              }
+              else{
+                firebase.database().ref(`ball`).on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const ballDB = snapshot.val();
+                    //take from database
+                    ballObject.accelarationX = ballDB.accelarationX
+                    ballObject.accelarationY = ballDB.accelarationY
+                    ballObject.x = ballDB.x;
+                    ballObject.y = ballDB.y;
+                }
+              });
+            }
+              moveBall();
+            }
+        });
+        
+        $(document).keydown(function(e) {
+          // Create a JavaScript object to represent the player's data
+          players = {
+            playerId : localStorage.getItem("PlayerID"),
+            keyCode: e.keyCode,
+            state: "keydown" // Add the playerId attribute
+          };
+          if (players["keyCode"] == 40) {
+            if (players["playerId"] == 1) {
+              if (!YmoveDown) {
+                speedIncreaseFactor += 1;
+                YmoveDown = setInterval(moveDown,10,p1,paddle1Position,paddle1Style);
+              }
+            }
+            else{
+              if (!RmoveDown) {
+                speedIncreaseFactor += 1;
+                RmoveDown = setInterval(moveDown,10,p2,paddle2Position,paddle2Style);
+              }
+            }
+          }
+          else if (players["keyCode"] == 38){
+            if (players["playerId"] == 1) {
+              if (!Ymoveup) {
+                  speedIncreaseFactor += 1;
+                  Ymoveup = setInterval(moveUp, 10,p1,paddle1Position);
+              }
+            }
+            else{
+              if (!RmoveUp) {
+                  speedIncreaseFactor += 1;
+                  RmoveUp = setInterval(moveUp,10,p2,paddle2Position);
+              }
+            }
+        }
+        
+          var firebaseRefPlayer = firebase.database().ref(`players/${localStorage.getItem("PlayerID")}`);
+          firebaseRefPlayer.set(players)
+          .then(() => {
+            console.log('Object created successfully.');
+          })
+          .catch((error) => {
+            console.error('Error creating object:', error);
+          });
+      });
+
+        $(document).keyup(function(e) {
+         // Create a JavaScript object to represent the player's data
+           players = {
+            playerId : localStorage.getItem("PlayerID"),
+            keyCode: e.keyCode,
+            state: "keyup" // Add the playerId attribute
+          };
+          if (players["keyCode"] == 40) {
+            if (players["playerId"] == 1) {
+              clearInterval(YmoveDown);
+              YmoveDown = null;
+              speedIncreaseFactor = 1;
+            }
+            else{
+              clearInterval(RmoveDown);
+              RmoveDown = null;
+              speedIncreaseFactor = 1;
+            }
+          }
+          else if (players["keyCode"] == 38){
+            if (players["playerId"] == 1) {
+              clearInterval(Ymoveup);
+              Ymoveup = null;
+              speedIncreaseFactor = 1;
+            }
+            else{
+              clearInterval(RmoveUp);
+              RmoveUp = null;
+              speedIncreaseFactor = 1;
+            }
+          }
+          var firebaseRefPlayer = firebase.database().ref(`players/${localStorage.getItem("PlayerID")}`);
+          firebaseRefPlayer.set(players)
+          .then(() => {
+            console.log('Object created successfully.');
+          })
+          .catch((error) => {
+            console.error('Error creating object:', error);
+          });
+        });
+
+        // Clear the arrowKeys data in Firebase on page load
+        document.addEventListener("DOMContentLoaded", function () {
+                var firebaseRefPlayer = firebase.database().ref(`players`);
+                firebaseRefPlayer.set({})
+                .then(function () {
+                    console.log("Database cleared successfully.");
+                })
+                .catch(function (error) {
+                    console.log("Error clearing database:", error);
+                });
+                var firebaseRefPlayerPosition = firebase.database().ref(`playersPostion`);
+                firebaseRefPlayerPosition.set({})
+                .then(function () {
+                    console.log("Database cleared successfully.");
+                })
+                .catch(function (error) {
+                    console.log("Error clearing database:", error);
+                });
+                var firebaseRefBall = firebase.database().ref(`ball`);
+                firebaseRefBall.set({})
+                .then(function () {
+                    console.log("Database cleared successfully.");
+                })
+                .catch(function (error) {
+                    console.log("Error clearing database:", error);
+                });
+                var firebaseRefscore = firebase.database().ref(`score`);
+                firebaseRefscore.set({})
+                .then(function () {
+                    console.log("Database cleared successfully.");
+                })
+                .catch(function (error) {
+                    console.log("Error clearing database:", error);
+                });
+        });
+        
+        //Paddle move up
+    function moveUp(paddle,paddlePosition) {
+        const currentTop = parseInt(paddle.style.top) ;
+        if (currentTop > gameContainer.offsetTop ) {
+            console.log(true);
+            if (!movingTime) {
+                movingTime = Date.now();
+            }
+            if (Date.now() - movingTime > 1000) {
+                paddlePosition = currentTop - paddleSpeed * speedIncreaseFactor;
+                playersPostion["Postion"] = paddlePosition;
+                var firebaseRefPlayerPosition = firebase.database().ref(`playersPostion/${localStorage.getItem("PlayerID")}`);
+                firebaseRefPlayerPosition.set(playersPostion)
+                .then(() => {
+                  console.log('Object created successfully.');
+                })
+                .catch((error) => {
+                  console.error('Error creating object:', error);
+                });
+            }
+            if (paddle == p1) {
+                paddle1Position = paddlePosition
+            }
+            else{
+              console.log(paddle2Position);
+                paddle2Position = paddlePosition
+
+            }
+        } else {
+            stopMoving();
+        }
+    }
+    
+    function animate() {
+    if (isMoving) {
+        moveUp();
+    }
+    }
+
+    function startMoving() {
+        isMoving = true;
+        animate();
+    }
+
+    function stopMoving() {
+        isMoving = false;
+    }
+
+    function moveDown(paddle,paddlePosition,paddleStyle) {
+        const currentTop = parseInt(paddle.style.top) || paddlePosition;
+        if (currentTop < -((gameContainer.offsetTop - gameContainer.offsetHeight ) + ( paddle.offsetHeight + parseInt(paddleStyle.marginTop) + parseInt(paddleStyle.marginBottom) )) 
+            ) {
+            if (!movingTime) {
+                movingTime = Date.now();
+            }
+            if (Date.now() - movingTime > 10) {
+                paddlePosition = currentTop + paddleSpeed * speedIncreaseFactor;
+                playersPostion["Postion"] = paddlePosition;
+                var firebaseRefPlayerPosition = firebase.database().ref(`playersPostion/${localStorage.getItem("PlayerID")}`);
+                firebaseRefPlayerPosition.set(playersPostion)
+                .then(() => {
+                  console.log('Object created successfully.');
+                })
+                .catch((error) => {
+                  console.error('Error creating object:', error);
+                });
+            }
+            if (paddle == p1) {
+                paddle1Position = paddlePosition
+            }
+            else{
+                paddle2Position = paddlePosition
+            }
+        } else {
+            stopMoving();
+        }
+    }
+
+function moveBall() {
+
+    // Update ball position
+    ballObject.x += ballObject.accelarationX;
+    ballObject.y += ballObject.accelarationY;
+
+
+    // Save the ball event to Firebase
+    var firebaseRefball = firebase.database().ref(`ball`);
+    firebaseRefball.set(ballObject)
+      .then(() => {
+        console.log('Object created successfully.');
+      })
+      .catch((error) => {
+        console.error('Error creating object:', error);
+      });
+    // Ball collision detection with paddles
+    if (
+        (ballObject.x <= (p1.offsetWidth + parseInt(paddle1Style.marginRight)) && ballObject.y + ballStyle.offsetHeight >= paddle1Position && ballObject.y <= paddle1Position + p1.offsetHeight) ||
+        (ballObject.x >= containerWidth - (p2.offsetWidth + parseInt(paddle2Style.marginRight) + parseInt(paddle2Style.marginLeft)) && ballObject.y + ballStyle.offsetHeight >= paddle2Position && ballObject.y <= paddle2Position + p2.offsetHeight)
+    ) {
+        ballObject.accelarationX = -ballObject.accelarationX; // Reverse ball direction on paddle collision
+        ballObject.accelarationY = -ballObject.accelarationY; // Reverse ball direction on paddle collision
+    }
+
+    // Ball collision detection with top and bottom walls
+    if (ballObject.y <= 0 || ballObject.y >= containerHeight - ballStyle.offsetHeight) {
+        ballObject.accelarationY = -ballObject.accelarationY; // Reverse ball direction on wall collision
+    }
+    // Check for scoring
+    Score();
+    //end the game
+    if (score.Player1 == "5" || score.Player2 == "5") {
+          return;
+      }
+    // Repeat the moveBall function using requestAnimationFrame
+    requestAnimationFrame(moveBall);
+  }
+    function Score() {    
+    if (ballObject.x <= 0) {
+        // Increase score and update score element
+      score.Player2 = score.Player2 +1 ;
+      // Save the score event to Firebase
+      var firebaseRefscore = firebase.database().ref(`score`);
+      firebaseRefscore.set(score)
+      .then(() => {
+        console.log('score created successfully.');
+      })
+      .catch((error) => {
+        console.error('Error creating score:', error);
+      });
+        // scoreP2.innerHTML =   score.Player2;
+        if (score.Player2 == "5") {
+            score.Winner = "Player 2 win"
+            // Save the score event to Firebase
+            var firebaseRefscore = firebase.database().ref(`score`);
+            firebaseRefscore.set(score)
+              .then(() => {
+                console.log('Object created successfully.');
+              })
+              .catch((error) => {
+                console.error('Error creating object:', error);
+              });
+              }
+            // Reset ball position
+            ballObject.x = containerWidth / 2 - (ballStyle.offsetWidth / 2);
+            ballObject.y = containerHeight / 2 - (ballStyle.offsetHeight / 2);
+
+        // Randomize ball direction on scoring
+        ballObject.accelarationX = -ballObject.accelarationX;
+        ballObject.accelarationY = Math.random() > 0.5 ? -2 : 2;
+    } 
+    else if (ballObject.x >= containerWidth - ballStyle.offsetWidth) {
+        // Increase score and update score element
+        score.Player1 = score.Player1 +1 ;
+        // Save the score event to Firebase
+      var firebaseRefscore = firebase.database().ref(`score`);
+      firebaseRefscore.set(score)
+      .then(() => {
+        console.log('score created successfully.');
+      })
+      .catch((error) => {
+        console.error('Error creating score:', error);
+      });
+        // scoreP1.innerHTML = score.Player1;
+        if (score.Player1 == "5") {
+            score.Winner = "Player 1 win"
+            var firebaseRefscore = firebase.database().ref(`score`);
+            firebaseRefscore.set(score)
+              .then(() => {
+                console.log('Object created successfully.');
+              })
+              .catch((error) => {
+                console.error('Error creating object:', error);
+              });
+        }
+        // Reset ball position
+        ballObject.x = containerWidth / 2 - (ballStyle.offsetWidth / 2);
+        ballObject.y = containerHeight / 2 - (ballStyle.offsetHeight / 2);
+
+        // Randomize ball direction on scoring
+        ballObject.accelarationX = -ballObject.accelarationX;
+        ballObject.accelarationY = Math.random() > 0.5 ? -2 : 2;
+    }
+
+    }
+    </script>
+    <script src="js/Script2.js"></script>
+  </body>
+</html>
