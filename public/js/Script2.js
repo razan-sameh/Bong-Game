@@ -5,6 +5,7 @@ firebase.database().ref(`playersPostion/${2}`).on('value', (snapshot) => {
 if (snapshot.exists()) {
     const players = snapshot.val();
     p2.style.top = players["Postion"] + "px";
+    paddle2Position = players["Postion"] ;
 
 }
 });
@@ -16,6 +17,7 @@ firebase.database().ref(`playersPostion/${1}`).on('value', (snapshot) => {
 if (snapshot.exists()) {
     const players = snapshot.val();
     p1.style.top = players["Postion"] + "px";
+    paddle1Position = players["Postion"] ;
 }
 });
 
