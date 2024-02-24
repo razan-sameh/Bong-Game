@@ -1,4 +1,3 @@
-
 # Bong Game: Two-Player Version with Firebase and JavaScript
 
 ## Description:
@@ -13,3 +12,6 @@ Welcome to Bong Game, a classic two-player game brought to life with modern web 
 - Gameplay: The game begins when both players have joined the same room. Players take turns to interact with the game board, aiming to score points and outmaneuver their opponent.
 - Real-Time Updates: Throughout the game, Firebase ensures that both players receive instant updates on their screens, keeping the gameplay synchronized.
 - End Game: The game ends when one player reaches the winning score or when players decide to end the game. Scores are displayed, and players have the option to start a new game or return to the lobby.
+
+###
+[Play Bong Game Now!](https://ponggame-b08ee.web.app/Play.html)
