@@ -14,4 +14,4 @@ Welcome to Bong Game, a classic two-player game brought to life with modern web 
 - End Game: The game ends when one player reaches the winning score or when players decide to end the game. Scores are displayed, and players have the option to start a new game or return to the lobby.
 
 ###
-[Play Bong Game Now!](https://ponggame-b08ee.web.app/Play.html)
+[Play Bong Game Now!](https://ponggame-b08ee.web.app/)
